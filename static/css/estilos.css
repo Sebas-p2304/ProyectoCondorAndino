@@ -1,0 +1,270 @@
+/* Guardianes del Cóndor — edición de referencia
+   Diseño: pantalla de juego centrada; HUD arriba, lienzo 16:9, paneles superpuestos.
+   Un solo aspecto (atardecer andino oscuro), elegido a propósito. */
+:root {
+  color-scheme: dark;
+  --noche: #121c24;
+  --noche-2: #1b2a35;
+  --panel: rgba(16, 26, 34, 0.92);
+  --linea: #3a4d5a;
+  --texto: #eef1ec;
+  --texto-suave: #b7c3c4;
+  --ocre: #e2b44f;
+  --ocre-oscuro: #9c7424;
+  --caruncula: #c2412f;
+  --paramo: #7f9a4a;
+  --peligro: #e2563f;
+  --vida: #8fc46a;
+  --display: "Bungee", "Arial Black", Impact, sans-serif;
+  --cuerpo: "Atkinson Hyperlegible", "Segoe UI", Verdana, sans-serif;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: radial-gradient(1200px 600px at 50% -10%, #2a3c48 0%, var(--noche) 60%) fixed, var(--noche);
+  color: var(--texto);
+  font-family: var(--cuerpo);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.app {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-block: 16px 24px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---------- HUD ---------- */
+.hud {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 12px;
+  align-items: stretch;
+}
+.hud-centro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+}
+.nivel-nombre {
+  font-family: var(--display);
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  color: var(--ocre);
+  text-align: center;
+  white-space: nowrap;
+}
+.progreso {
+  width: 220px;
+  max-width: 100%;
+  height: 8px;
+  background: var(--noche-2);
+  border: 1px solid var(--linea);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progreso > div { height: 100%; width: 0; background: linear-gradient(90deg, var(--paramo), var(--ocre)); }
+.hud-datos {
+  display: flex;
+  gap: 14px;
+  font-size: 13px;
+  color: var(--texto-suave);
+  font-variant-numeric: tabular-nums;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.hud-datos b { color: var(--texto); font-weight: 700; }
+
+.jugador {
+  background: var(--panel);
+  border: 1px solid var(--linea);
+  border-radius: 10px;
+  padding: 8px 12px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  align-items: center;
+  min-width: 0;
+}
+.jugador[hidden] { display: none !important; }
+.jugador.derecha { justify-self: end; }
+.jugador .nombre { font-weight: 700; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-suave); }
+.jugador .plumas { font-size: 15px; letter-spacing: 2px; color: var(--texto); text-align: right; }
+.energia { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--texto-suave); }
+.barra { flex: 1; height: 10px; background: var(--noche-2); border-radius: 99px; overflow: hidden; border: 1px solid var(--linea); min-width: 110px; }
+.barra > div { height: 100%; width: 100%; background: var(--vida); transition: width .15s linear, background-color .3s; }
+.barra.baja > div { background: var(--peligro); }
+.vista-estado { grid-column: 1 / -1; font-size: 12px; color: var(--texto-suave); }
+
+/* ---------- Escenario ---------- */
+.escenario {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--linea);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  background: #2c4150;
+}
+canvas { display: block; width: 100%; height: 100%; }
+
+.capa {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(10, 16, 22, 0.55);
+  backdrop-filter: blur(2px);
+}
+.tarjeta {
+  width: min(640px, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--linea);
+  border-top: 4px solid var(--ocre);
+  border-radius: 14px;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.tarjeta.ancha { width: min(860px, 100%); }
+.etiqueta {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ocre);
+}
+.tarjeta h1, .tarjeta h2 {
+  font-family: var(--display);
+  font-weight: 400;
+  margin: 0;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+.tarjeta h1 { font-size: clamp(26px, 4.6vw, 44px); }
+.tarjeta h2 { font-size: clamp(20px, 3vw, 28px); }
+.tarjeta p { margin: 0; color: var(--texto-suave); max-width: 62ch; }
+.tarjeta p strong { color: var(--texto); }
+.fuente { font-size: 12px; color: #8ea0a3; }
+
+.botones { display: flex; flex-wrap: wrap; gap: 10px; }
+button {
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 10px;
+  border: 1px solid var(--linea);
+  background: var(--noche-2);
+  color: var(--texto);
+  padding: 10px 16px;
+}
+button:hover { border-color: var(--ocre); }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--ocre); outline-offset: 2px; }
+button.principal { background: var(--ocre); color: #1d1606; border-color: var(--ocre); }
+button.principal:hover { background: #f0c665; }
+
+.controles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+.controles div { background: var(--noche-2); border-radius: 10px; padding: 10px 12px; font-size: 14px; color: var(--texto-suave); }
+.controles b { color: var(--texto); display: block; margin-bottom: 4px; }
+kbd {
+  font-family: var(--cuerpo);
+  font-size: 12px;
+  background: #0d151b;
+  border: 1px solid var(--linea);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 1px 6px;
+  color: var(--texto);
+}
+
+.opciones { display: flex; flex-direction: column; gap: 8px; }
+.opciones button { text-align: left; font-weight: 400; }
+.opciones button.correcta { border-color: var(--vida); background: rgba(143, 196, 106, 0.18); }
+.opciones button.incorrecta { border-color: var(--peligro); background: rgba(226, 86, 63, 0.18); }
+
+.estrellas { font-size: 30px; letter-spacing: 6px; color: var(--ocre); }
+.resumen { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.resumen div { background: var(--noche-2); border-radius: 10px; padding: 10px; }
+.resumen span { display: block; font-size: 12px; color: var(--texto-suave); }
+.resumen b { font-size: 22px; font-variant-numeric: tabular-nums; }
+
+.ficha-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.ficha { background: var(--noche-2); border-radius: 10px; padding: 12px; border: 1px solid var(--linea); display: flex; flex-direction: column; gap: 4px; }
+.ficha h3 { margin: 0; font-size: 15px; }
+.ficha p { font-size: 14px; }
+.ficha.bloqueada { opacity: 0.55; border-style: dashed; }
+
+.tabla-puntajes { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.tabla-puntajes td, .tabla-puntajes th { padding: 6px 8px; border-bottom: 1px solid var(--linea); text-align: left; font-size: 14px; }
+.tabla-puntajes th { color: var(--texto-suave); font-weight: 400; }
+.tabla-puntajes td:last-child, .tabla-puntajes th:last-child { text-align: right; }
+
+input[type="text"] {
+  font: inherit;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--linea);
+  background: #0d151b;
+  color: var(--texto);
+  min-width: 0;
+  flex: 1;
+}
+
+/* Aviso "¿Sabías que…?" sin pausar el juego */
+.aviso {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  width: min(380px, calc(100% - 28px));
+  background: var(--panel);
+  border: 1px solid var(--linea);
+  border-left: 4px solid var(--ocre);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--texto-suave);
+  transform: translateY(0);
+  transition: opacity .3s, transform .3s;
+}
+.aviso b { color: var(--texto); display: block; }
+.aviso.oculto { opacity: 0; transform: translateY(10px); pointer-events: none; }
+
+/* Controles táctiles */
+.tactil { display: none; gap: 10px; justify-content: space-between; }
+.tactil .grupo { display: flex; gap: 8px; }
+.tactil button { width: 58px; height: 52px; font-size: 20px; touch-action: none; user-select: none; }
+@media (pointer: coarse) { .tactil { display: flex; } }
+
+.pie { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--texto-suave); }
+.pie button { padding: 6px 12px; font-size: 13px; }
+
+@media (max-width: 720px) {
+  .hud { grid-template-columns: 1fr 1fr; }
+  .hud-centro { grid-column: 1 / -1; order: -1; }
+  .tarjeta { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aviso, .barra > div { transition: none; }
+}

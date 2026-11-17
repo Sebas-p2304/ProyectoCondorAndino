@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Guardianes del Cóndor</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+<div class="app">
+  <header class="hud" aria-label="Estado del juego">
+    <section class="jugador" id="hud-j1">
+      <span class="nombre" id="hud-j1-nombre">Cóndor 1</span>
+      <span class="plumas" id="hud-j1-vidas" aria-label="Vidas">♥♥♥</span>
+      <div class="energia">Energía <div class="barra" id="hud-j1-barra"><div></div></div></div>
+      <div class="vista-estado" id="hud-j1-accion"></div>
+      <div class="vista-estado" id="hud-j1-vista">Vista de cóndor: lista</div>
+    </section>
+    <div class="hud-centro">
+      <div class="nivel-nombre" id="hud-nivel">Guardianes del Cóndor</div>
+      <div class="progreso" title="Distancia al nido"><div id="hud-progreso"></div></div>
+      <div class="hud-datos">
+        <span>Puntos <b id="hud-puntos">0</b></span>
+        <span>Altitud <b id="hud-altitud">0</b> m</span>
+        <span>Páramo limpio <b id="hud-limpio">0</b>%</span>
+        <span>Datos <b id="hud-datos">0</b>/<span id="hud-datos-total">0</span></span>
+      </div>
+    </div>
+    <section class="jugador derecha" id="hud-j2" hidden>
+      <span class="nombre">Cóndor 2</span>
+      <span class="plumas" id="hud-j2-vidas" aria-label="Vidas">♥♥♥</span>
+      <div class="energia">Energía <div class="barra" id="hud-j2-barra"><div></div></div></div>
+      <div class="vista-estado" id="hud-j2-accion"></div>
+      <div class="vista-estado" id="hud-j2-vista">Vista de cóndor: lista</div>
+    </section>
+  </header>
+
+  <main class="escenario" id="escenario">
+    <canvas id="lienzo" width="960" height="540" aria-label="Juego: vuela como un cóndor andino sobre el páramo del Cotopaxi"></canvas>
+    <div class="aviso oculto" id="aviso" role="status" aria-live="polite"></div>
+    <div class="capa" id="capa"></div>
+  </main>
+
+  <div class="tactil" id="tactil" aria-label="Controles táctiles">
+    <div class="grupo">
+      <button type="button" data-tecla="ArrowLeft" aria-label="Izquierda">◀</button>
+      <button type="button" data-tecla="ArrowRight" aria-label="Derecha">▶</button>
+    </div>
+    <div class="grupo">
+      <button type="button" data-tecla="KeyG" aria-label="Planear">≈</button>
+      <button type="button" data-tecla="KeyV" aria-label="Vista de cóndor">◉</button>
+      <button type="button" data-tecla="ArrowDown" aria-label="Picada">▼</button>
+      <button type="button" data-tecla="ArrowUp" aria-label="Aletear">▲</button>
+    </div>
+  </div>
+
+  <footer class="pie">
+    <span><kbd>↑</kbd> aletear · <kbd>Shift</kbd> planear · <kbd>↓</kbd> picada · <kbd>V</kbd> vista · <kbd>P</kbd> pausa · <kbd>M</kbd> sonido</span>
+    <span>Juego de referencia · Proyecto Aplicaciones Web · FABLAB</span>
+  </footer>
+</div>
+
+<script src="js/datos.js"></script>
+<script src="js/juego.js"></script>
+</body>
+</html>
